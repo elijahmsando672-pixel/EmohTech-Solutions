@@ -3,6 +3,7 @@ import { Loader2, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import Button from "../Button.jsx";
 import { TextInput, TextArea, Select } from "./Field.jsx";
 import { isEmail, isEmpty, ERROR_MESSAGES } from "../../utils/validate.js";
+import { apiUrl } from "../../utils/api.js";
 
 const budgets = ["Under KES 15,000", "KES 15,000 – 45,000", "KES 45,000 – 100,000", "Above KES 100,000", "Not sure yet"];
 const timelines = ["As soon as possible", "Within 1 month", "1 – 3 months", "Just exploring"];
@@ -54,7 +55,7 @@ export default function InquiryForm({ defaultService = "" }) {
 
     setStatus("submitting");
     try {
-      const res = await fetch("/api/inquiries", {
+      const res = await fetch(apiUrl("/api/inquiries"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

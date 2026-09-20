@@ -3,6 +3,7 @@ import { Loader2, Send, CheckCircle2, AlertCircle } from "lucide-react";
 import Button from "../Button.jsx";
 import { TextInput, TextArea, Select } from "./Field.jsx";
 import { isEmail, minLength, isEmpty, ERROR_MESSAGES } from "../../utils/validate.js";
+import { apiUrl } from "../../utils/api.js";
 
 const subjects = [
   "Website Development",
@@ -43,7 +44,7 @@ export default function ContactForm() {
 
     setStatus("submitting");
     try {
-      const res = await fetch("/api/messages", {
+      const res = await fetch(apiUrl("/api/messages"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),

@@ -1,4 +1,4 @@
-import { ArrowRight, CheckCircle2, Sparkles, Wallet, ShieldCheck, Clock } from "lucide-react";
+import { CheckCircle2, Sparkles } from "lucide-react";
 import usePageMeta from "../hooks/usePageMeta.js";
 import Button from "../components/Button.jsx";
 import SectionHeading from "../components/SectionHeading.jsx";

@@ -78,6 +78,27 @@ npm start       # server serves the built client + API
 
 All company content (name, contact details, services, socials, stats) is editable in one file: [client/src/config/site.js](client/src/config/site.js).
 
+## Deployment
+
+The frontend is a static SPA and can be hosted anywhere. Config files are included for:
+
+- **Netlify** – `netlify.toml` (base `client`, publish `dist`, SPA redirect) plus `client/public/_redirects` as a portable fallback.
+- **Vercel** – `vercel.json` (framework Vite, root `client`).
+
+Build settings, if configuring manually:
+
+| Setting         | Value            |
+| --------------- | ---------------- |
+| Base / Root dir | `client`         |
+| Build command   | `npm run build`  |
+| Publish / Output| `dist`           |
+
+The SPA needs a rewrite of all routes to `/index.html` (already configured above).
+
+### API hosting
+
+The Express API in `server/` runs anywhere Node runs (Render, Railway, Fly.io, a VPS). Set the client's `VITE_API_URL` environment variable to the API origin so the contact and inquiry forms reach it, e.g. `VITE_API_URL=https://api.emohtech.co.ke`. Leave it empty when the API serves the built client itself.
+
 ## License
 
 Private project.
