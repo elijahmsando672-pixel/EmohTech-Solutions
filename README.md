@@ -78,6 +78,24 @@ npm start       # server serves the built client + API
 
 All company content (name, contact details, services, socials, stats) is editable in one file: [client/src/config/site.js](client/src/config/site.js).
 
+## Analytics
+
+The client ships with a provider-agnostic tracking hook in `client/src/lib/analytics.js`. To wire a real analytics service, define `window.emohtechTrack(payload)` before React mounts, e.g.:
+
+```js
+window.emohtechTrack = ({ event, ...data }) => gtag("event", event, data);
+```
+
+Events tracked by the site:
+
+| Event                 | When                                          |
+| --------------------- | --------------------------------------------- |
+| `start_project_click` | "Start a Project" CTAs                        |
+| `whatsapp_click`      | WhatsApp links                                |
+| `email_click`         | `mailto:` links                               |
+| `contact_form_start`  | First interaction with the project form       |
+| `contact_form_submit` | Successful project form submission            |
+
 ## Deployment
 
 The frontend is a static SPA and can be hosted anywhere. Config files are included for:

@@ -4,11 +4,10 @@ const ThemeContext = createContext(undefined);
 
 const STORAGE_KEY = "emohtech-theme";
 
+// The site uses a dark-first design. Theme stays stored as "dark"; the
+// provider remains for compatibility with `.dark`-scoped styles.
 function getInitialTheme() {
-  if (typeof window === "undefined") return "light";
-  const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "dark" || stored === "light") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "dark";
 }
 
 export function ThemeProvider({ children }) {
@@ -24,7 +23,7 @@ export function ThemeProvider({ children }) {
     window.localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  const toggleTheme = () => setTheme("dark");
 
   return <ThemeContext.Provider value={{ theme, toggleTheme }}>{children}</ThemeContext.Provider>;
 }

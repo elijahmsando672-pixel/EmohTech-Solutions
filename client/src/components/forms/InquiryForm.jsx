@@ -5,7 +5,7 @@ import { TextInput, TextArea, Select } from "./Field.jsx";
 import { isEmail, isEmpty, ERROR_MESSAGES } from "../../utils/validate.js";
 import { apiUrl } from "../../utils/api.js";
 
-const budgets = ["Under KES 15,000", "KES 15,000 – 45,000", "KES 45,000 – 100,000", "Above KES 100,000", "Not sure yet"];
+const budgets = ["Under KSh 20,000", "KSh 20,000 – 50,000", "KSh 50,000 – 100,000", "KSh 100,000+", "Not sure yet"];
 const timelines = ["As soon as possible", "Within 1 month", "1 – 3 months", "Just exploring"];
 const serviceOptions = [
   "Website Development",

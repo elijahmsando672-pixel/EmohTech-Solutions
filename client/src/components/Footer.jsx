@@ -1,52 +1,70 @@
-import { MapPin, Mail, Phone } from "lucide-react";
+import { MapPin, Mail, Phone, MessageCircle, ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import site from "../config/site.js";
 import Logo from "./Logo.jsx";
+import { trackWhatsApp, trackEmail } from "../lib/analytics.js";
 
-const quickLinks = [
+const companyLinks = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About Us" },
   { to: "/services", label: "Services" },
-  { to: "/projects", label: "Projects" },
+  { to: "/projects", label: "Our Work" },
   { to: "/pricing", label: "Pricing" },
   { to: "/contact", label: "Contact" },
 ];
 
 const serviceLinks = [
   "Website Development",
-  "AI & Chatbot Development",
-  "Business Automation",
-  "Payment Integration",
-  "Database & Backend",
-  "Custom Software",
+  "E-commerce",
+  "Custom Web Applications",
+  "Business Systems",
+  "Backend & APIs",
+  "Automation",
 ];
+
+function WhatsAppLink({ className = "" }) {
+  const href = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(site.whatsappMessage)}`;
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      onClick={trackWhatsApp}
+      className={className}
+    >
+      <MessageCircle className="h-4 w-4 text-brand-400" aria-hidden="true" />
+      WhatsApp
+      <ArrowUpRight className="h-3.5 w-3.5 opacity-70" aria-hidden="true" />
+    </a>
+  );
+}
 
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="border-t border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950">
+    <footer className="border-t border-slate-400/10 bg-night-900 pb-24 lg:pb-0">
       <div className="container-x grid gap-10 py-14 sm:grid-cols-2 lg:grid-cols-4">
         <div className="space-y-4">
           <Logo />
-          <p className="text-sm leading-relaxed text-slate-500 dark:text-slate-400">
-            We build websites, chatbots, automation and payment systems that help Kenyan businesses and
-            schools work smarter.
+          <p className="text-sm leading-relaxed text-slate-400">
+            Digital products built for real businesses. Websites, e-commerce and
+            custom software for growing teams in Kenya and beyond.
           </p>
-          <p className="text-xs font-semibold uppercase tracking-widest text-brand-600 dark:text-accent-400">
+          <p className="text-xs font-semibold uppercase tracking-widest text-brand-400">
             {site.tagline}
           </p>
         </div>
 
-        <nav aria-label="Footer - quick links">
-          <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+        <nav aria-label="Footer - company links">
+          <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wider text-white">
             Company
           </h3>
           <ul className="space-y-2.5">
-            {quickLinks.map((l) => (
+            {companyLinks.map((l) => (
               <li key={l.to}>
                 <Link
                   to={l.to}
-                  className="text-sm text-slate-500 transition-colors hover:text-brand-600 dark:text-slate-400 dark:hover:text-accent-400"
+                  className="text-sm text-slate-400 transition-colors hover:text-brand-300"
                 >
                   {l.label}
                 </Link>
@@ -56,7 +74,7 @@ export default function Footer() {
         </nav>
 
         <div>
-          <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+          <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wider text-white">
             Services
           </h3>
           <ul className="space-y-2.5">
@@ -64,7 +82,7 @@ export default function Footer() {
               <li key={s}>
                 <Link
                   to="/services"
-                  className="text-sm text-slate-500 transition-colors hover:text-brand-600 dark:text-slate-400 dark:hover:text-accent-400"
+                  className="text-sm text-slate-400 transition-colors hover:text-brand-300"
                 >
                   {s}
                 </Link>
@@ -74,38 +92,44 @@ export default function Footer() {
         </div>
 
         <div>
-          <h3 className="mb-4 text-sm font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+          <h3 className="mb-4 font-display text-sm font-bold uppercase tracking-wider text-white">
             Get in Touch
           </h3>
-          <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400">
+          <ul className="space-y-3 text-sm text-slate-400">
             <li>
-              <a href={site.phoneHref} className="inline-flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-accent-400">
-                <Phone className="h-4 w-4 text-brand-600 dark:text-accent-400" aria-hidden="true" />
+              <a href={site.phoneHref} className="inline-flex items-center gap-2 transition-colors hover:text-brand-300">
+                <Phone className="h-4 w-4 text-brand-400" aria-hidden="true" />
                 {site.phone}
               </a>
             </li>
             <li>
-              <a href={`mailto:${site.email}`} className="inline-flex items-center gap-2 transition-colors hover:text-brand-600 dark:hover:text-accent-400">
-                <Mail className="h-4 w-4 text-brand-600 dark:text-accent-400" aria-hidden="true" />
+              <a
+                href={`mailto:${site.email}`}
+                onClick={trackEmail}
+                className="inline-flex items-center gap-2 transition-colors hover:text-brand-300"
+              >
+                <Mail className="h-4 w-4 text-brand-400" aria-hidden="true" />
                 {site.email}
               </a>
             </li>
             <li className="inline-flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-brand-600 dark:text-accent-400" aria-hidden="true" />
+              <MapPin className="h-4 w-4 text-brand-400" aria-hidden="true" />
               {site.location}
+            </li>
+            <li className="pt-1">
+              <WhatsAppLink className="inline-flex items-center gap-2 transition-colors hover:text-brand-300" />
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="border-t border-slate-200 dark:border-slate-800">
-        <div className="container-x flex flex-col items-center justify-between gap-3 py-6 text-sm text-slate-500 dark:text-slate-400 sm:flex-row">
+      <div className="border-t border-slate-400/10">
+        <div className="container-x flex flex-col items-center justify-between gap-3 py-6 text-sm text-slate-500 sm:flex-row">
+          <p>© {year} {site.legalName}. All rights reserved.</p>
           <p>
-            © {year} {site.legalName}. All rights reserved.
-          </p>
-          <p>
-            Built by <span className="font-semibold text-brand-600 dark:text-accent-400">{site.founder.name}</span>{" "}
-            · Based in {site.location}
+            Built by{" "}
+            <span className="font-semibold text-brand-400">{site.founder.name}</span>
+            {" "}· Based in {site.location}
           </p>
         </div>
       </div>

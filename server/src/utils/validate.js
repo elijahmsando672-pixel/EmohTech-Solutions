@@ -55,10 +55,10 @@ export function validateInquiry(body) {
   if (!isNonEmptyString(body.service, 120)) errors.service = "A service must be selected.";
 
   const validBudgets = [
-    "Under KES 15,000",
-    "KES 15,000 – 45,000",
-    "KES 45,000 – 100,000",
-    "Above KES 100,000",
+    "Under KSh 20,000",
+    "KSh 20,000 – 50,000",
+    "KSh 50,000 – 100,000",
+    "KSh 100,000+",
     "Not sure yet",
   ];
   if (!validBudgets.includes(body.budget)) errors.budget = "A budget range must be selected.";

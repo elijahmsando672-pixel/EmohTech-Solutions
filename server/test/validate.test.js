@@ -88,7 +88,7 @@ test("validateInquiry accepts a valid submission", () => {
     phone: "0700123456",
     company: "Mwamba Traders",
     service: "Website Development",
-    budget: "KES 15,000 – 45,000",
+    budget: "KSh 20,000 – 50,000",
     timeline: "Within 1 month",
     details: "A simple e-commerce site.",
   });

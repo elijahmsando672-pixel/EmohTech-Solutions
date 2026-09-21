@@ -1,17 +1,18 @@
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import { trackStartProject } from "../lib/analytics.js";
 
 const variants = {
   primary:
-    "bg-brand-600 text-white hover:bg-brand-700 focus-visible:outline-brand-600 shadow-md shadow-brand-600/20",
+    "bg-brand-500 text-night-950 hover:bg-brand-400 focus-visible:outline-brand-500 shadow-md shadow-brand-500/25",
   accent:
-    "bg-gradient-to-r from-brand-600 to-accent-500 text-white hover:from-brand-700 hover:to-accent-600 shadow-md shadow-brand-600/25",
+    "bg-gradient-to-r from-brand-500 to-accent-500 text-night-950 hover:from-brand-400 hover:to-accent-400 shadow-md shadow-brand-500/25",
   secondary:
-    "border border-slate-300 bg-white text-slate-800 hover:border-brand-500 hover:text-brand-600 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:border-accent-400 dark:hover:text-accent-400",
+    "border border-slate-400/25 bg-white/[0.03] text-white hover:border-brand-400 hover:text-brand-300",
   ghost:
-    "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-800 dark:hover:text-white",
+    "text-slate-300 hover:bg-slate-800 hover:text-white",
   whatsapp:
-    "bg-emerald-600 text-white hover:bg-emerald-500 shadow-md shadow-emerald-600/20",
+    "bg-emerald-500 text-night-950 hover:bg-emerald-400 shadow-md shadow-emerald-500/25",
 };
 
 const sizes = {
@@ -27,10 +28,16 @@ export default function Button({
   variant = "primary",
   size = "md",
   withArrow = false,
+  trackStart = false,
   className = "",
   ...props
 }) {
-  const classes = `inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 active:scale-[0.98] ${variants[variant]} ${sizes[size]} ${className}`;
+  const handleClick = (event) => {
+    if (trackStart) trackStartProject();
+    props.onClick?.(event);
+  };
+
+  const classes = `inline-flex items-center justify-center rounded-xl font-semibold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400/60 active:scale-[0.98] ${variants[variant]} ${sizes[size]} ${className}`;
 
   const content = (
     <>
@@ -41,20 +48,27 @@ export default function Button({
 
   if (to) {
     return (
-      <Link to={to} className={`group ${classes}`} {...props}>
+      <Link to={to} className={`group ${classes}`} {...props} onClick={handleClick}>
         {content}
       </Link>
     );
   }
   if (href) {
     return (
-      <a href={href} className={`group ${classes}`} {...props} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noreferrer noopener" : undefined}>
+      <a
+        href={href}
+        className={`group ${classes}`}
+        {...props}
+        onClick={handleClick}
+        target={href.startsWith("http") ? "_blank" : undefined}
+        rel={href.startsWith("http") ? "noreferrer noopener" : undefined}
+      >
         {content}
       </a>
     );
   }
   return (
-    <button type={props.type || "button"} className={`group ${classes}`} {...props}>
+    <button type={props.type || "button"} className={`group ${classes}`} {...props} onClick={handleClick}>
       {content}
     </button>
   );
