@@ -7,7 +7,8 @@ EmohTech Solutions is a Kenyan software development company (Nairobi, Kenya) bui
 ## Tech Stack
 
 - **Client** – React 18, Vite, Tailwind CSS, react-router, lucide-react
-- **Server** – Node.js, Express, JWT auth, bcryptjs
+- **Design system** – Dark-first studio brand (Manrope + Inter, cyan `#00E5FF` / purple `#7C3AED`), Tailwind class-based dark mode
+- **Server** – Node.js, Express, JWT auth, bcryptjs, rate limiting (`express-rate-limit`), email notifications (`nodemailer`)
 - **Database** – Microsoft SQL Server (`mssql`) with an in-memory fallback when the DB is unreachable
 
 ## Project Structure
@@ -16,6 +17,7 @@ EmohTech Solutions is a Kenyan software development company (Nairobi, Kenya) bui
 ├── client/   # React + Vite frontend (src/config/site.js holds all editable site content)
 ├── server/   # Express API (contact messages, inquiries, admin auth)
 │   └── database/schema.sql  # SQL Server schema
+├── .github/workflows/  # CI + Render auto-deploy workflows
 └── package.json  # Root scripts for setup / dev / build
 ```
 
@@ -98,6 +100,39 @@ Events tracked by the site:
 
 ## Deployment
 
+Production architecture (see [DEPLOYMENT.md](DEPLOYMENT.md) for the full walkthrough, verification steps, and troubleshooting):
+
+- **Frontend** – static SPA on **Netlify** → `https://emohtech.netlify.app`
+- **API** – Express server on **Render** → `https://emohtech-api.onrender.com`
+- **CI/CD** – GitHub Actions runs tests + lint on every push (`ci.yml`), and `deploy-api.yml` auto-redeploys the API on Render whenever `server/**` changes
+
+### GitHub secrets (for the API auto-deploy workflow)
+
+| Secret              | Where to get it                              |
+| ------------------- | -------------------------------------------- |
+| `RENDER_API_KEY`    | Render dashboard → Account → API keys        |
+| `RENDER_SERVICE_ID` | Render Service ID from the service URL (`srv-...`) |
+
+### API environment variables (production)
+
+Set these on the Render service (Dashboard → service → **Environment**):
+
+| Variable                              | Purpose                                       |
+| ------------------------------------- | --------------------------------------------- |
+| `ADMIN_USERNAME` / `ADMIN_PASSWORD`   | Admin login credentials                       |
+| `JWT_SECRET`                          | Secret for signing admin tokens               |
+| `SMTP_HOST/PORT/USER/PASS/FROM`       | SMTP server for submission notification email |
+| `NOTIFY_TO`                           | Email address that receives submissions       |
+| `CLIENT_ORIGIN`                       | CORS origin, e.g. `https://emohtech.netlify.app` |
+
+### Wiring the frontend to the API
+
+Production builds **default to the hosted API automatically** (`client/src/utils/api.js`), so no frontend environment variable is required. To point the frontend at a different API origin, set `VITE_API_URL` at build time on Netlify, e.g. `VITE_API_URL=https://api.emohtech.co.ke`.
+
+The API rate-limits public form submissions (10/15 min) and login (5/15 min) per IP, and can email you on every new submission via SMTP. Inquiries support a status workflow (`new` / `contacted` / `archived`) via `PUT /api/inquiries/:id/status` (admin JWT).
+
+### Manual static hosting
+
 The frontend is a static SPA and can be hosted anywhere. Config files are included for:
 
 - **Netlify** – `netlify.toml` (base `client`, publish `dist`, SPA redirect) plus `client/public/_redirects` as a portable fallback.
@@ -112,12 +147,6 @@ Build settings, if configuring manually:
 | Publish / Output| `dist`           |
 
 The SPA needs a rewrite of all routes to `/index.html` (already configured above).
-
-### API hosting
-
-The Express API in `server/` runs anywhere Node runs (Render, Railway, Fly.io, a VPS). Set the client's `VITE_API_URL` environment variable to the API origin so the contact and inquiry forms reach it, e.g. `VITE_API_URL=https://api.emohtech.co.ke`. Leave it empty when the API serves the built client itself.
-
-The API rate-limits public form submissions (10/15 min) and login (5/15 min) per IP, and can email you on every new submission via SMTP — see `server/.env.example` for `SMTP_*` / `NOTIFY_TO`. Inquiries support a status workflow (`new` / `contacted` / `archived`) via `PUT /api/inquiries/:id/status` (admin JWT).
 
 ## License
 
