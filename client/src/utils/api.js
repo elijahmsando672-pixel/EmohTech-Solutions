@@ -1,13 +1,20 @@
 /**
- * Resolves API URLs against an optional external API host.
+ * Resolves API URLs against the backend origin.
  *
- * By default requests are relative ("/api/..."), which works in local dev
- * (Vite proxies to the server) and when the server also serves the built
- * client. When the backend is hosted separately from a static frontend
- * (Netlify, Vercel, Cloudflare Pages, etc.), set VITE_API_URL to the API
- * origin, e.g. VITE_API_URL=https://api.emohtech.co.ke
+ * Resolution order:
+ *  1. VITE_API_URL (explicit override, e.g. for a separately hosted API)
+ *  2. The hosted production API — used automatically for production builds so
+ *     the live site works even if VITE_API_URL is missing at build time
+ *  3. Same-origin "" — used in local dev, where Vite proxies /api to the server
+ *
+ * The production fallback (like VITE_API_URL) is public, not a secret, and is
+ * only baked into `npm run build` output; development builds stay same-origin.
  */
-const API_BASE = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const CONFIGURED_API_URL = (import.meta.env.VITE_API_URL || "").replace(/\/+$/, "");
+const PRODUCTION_API_URL = "https://emohtech-api.onrender.com";
+
+export const API_BASE =
+  CONFIGURED_API_URL || (import.meta.env.PROD ? PRODUCTION_API_URL : "");
 
 export function apiUrl(path) {
   return `${API_BASE}${path}`;
