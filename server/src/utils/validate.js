@@ -46,6 +46,12 @@ export function validateContactMessage(body) {
 }
 
 /** Validates and normalizes a service inquiry submission. */
+export const INQUIRY_STATUSES = ["new", "contacted", "archived"];
+
+export function isValidInquiryStatus(value) {
+  return typeof value === "string" && INQUIRY_STATUSES.includes(value);
+}
+
 export function validateInquiry(body) {
   const errors = {};
 
@@ -74,6 +80,7 @@ export function validateInquiry(body) {
       budget: (body.budget || "").trim().slice(0, 50),
       timeline: cleanMessage(body.timeline, 100),
       details: cleanMessage(body.details, 5000),
+      status: "new",
     },
   };
 }

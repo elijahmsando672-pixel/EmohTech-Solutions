@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { verifyCredentials, signToken } from "../middleware/auth.js";
+import { loginLimiter } from "../middleware/rateLimit.js";
 
 const router = Router();
 
 /** POST /api/auth/login — exchange credentials for a JWT (admin use). */
-router.post("/login", async (req, res, next) => {
+router.post("/login", loginLimiter, async (req, res, next) => {
   try {
     const { username = "", password = "" } = req.body || {};
     const ok = await verifyCredentials(String(username), String(password));

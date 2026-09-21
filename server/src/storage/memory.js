@@ -21,8 +21,21 @@ export const memoryStorage = {
   },
 
   saveInquiry(data) {
-    const record = { id: `inq_${Date.now()}_${store.inquiries.length + 1}`, ...data, createdAt: now() };
+    const record = {
+      id: `inq_${Date.now()}_${store.inquiries.length + 1}`,
+      ...data,
+      status: data.status || "new",
+      createdAt: now(),
+    };
     store.inquiries.push(record);
+    return record;
+  },
+
+  updateInquiryStatus(id, status) {
+    const record = store.inquiries.find((q) => String(q.id) === String(id));
+    if (!record) return null;
+    record.status = status;
+    record.statusUpdatedAt = now();
     return record;
   },
 
@@ -30,8 +43,12 @@ export const memoryStorage = {
     return [...store.messages].reverse();
   },
 
-  async listInquiries() {
-    return [...store.inquiries].reverse();
+  async listInquiries(filter = {}) {
+    let items = [...store.inquiries].reverse();
+    if (filter.status) {
+      items = items.filter((q) => q.status === filter.status);
+    }
+    return items;
   },
 
   // Used by tests to reset state between cases.

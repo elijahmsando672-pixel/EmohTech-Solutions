@@ -4,6 +4,7 @@
  */
 import sql from "mssql";
 import { config } from "../config.js";
+import { INQUIRY_STATUSES } from "../utils/validate.js";
 
 let pool = null;
 
@@ -45,8 +46,18 @@ async function ensureTables(ctx) {
         budget NVARCHAR(50) NOT NULL,
         timeline NVARCHAR(100) NULL,
         details NVARCHAR(MAX) NULL,
+        status NVARCHAR(20) NOT NULL DEFAULT 'new',
+        statusUpdatedAt DATETIME2 NULL,
         createdAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
       );
+    END;
+
+    -- Migration for databases created before the status column existed.
+    IF OBJECT_ID('dbo.ServiceInquiries', 'U') IS NOT NULL
+      AND COL_LENGTH('dbo.ServiceInquiries', 'status') IS NULL
+    BEGIN
+      ALTER TABLE dbo.ServiceInquiries ADD status NVARCHAR(20) NOT NULL CONSTRAINT DF_ServiceInquiries_status DEFAULT 'new';
+      ALTER TABLE dbo.ServiceInquiries ADD statusUpdatedAt DATETIME2 NULL;
     END;
   `);
 }
@@ -80,20 +91,52 @@ async function saveInquiry(data) {
     .input("budget", sql.NVarChar, data.budget)
     .input("timeline", sql.NVarChar, data.timeline || null)
     .input("details", sql.NVarChar(sql.MAX), data.details || null)
+    .input("status", sql.NVarChar, data.status || "new")
     .query(`
-      INSERT INTO dbo.ServiceInquiries (name, email, phone, company, service, budget, timeline, details)
+      INSERT INTO dbo.ServiceInquiries (name, email, phone, company, service, budget, timeline, details, status)
       OUTPUT INSERTED.id, INSERTED.name, INSERTED.email, INSERTED.phone, INSERTED.company,
-             INSERTED.service, INSERTED.budget, INSERTED.timeline, INSERTED.details, INSERTED.createdAt
-      VALUES (@name, @email, @phone, @company, @service, @budget, @timeline, @details)
+             INSERTED.service, INSERTED.budget, INSERTED.timeline, INSERTED.details,
+             INSERTED.status, INSERTED.statusUpdatedAt, INSERTED.createdAt
+      VALUES (@name, @email, @phone, @company, @service, @budget, @timeline, @details, @status)
     `);
   return result.recordset[0];
+}
+
+async function updateInquiryStatus(id, status) {
+  const ctx = await getPool();
+  const result = await ctx
+    .request()
+    .input("id", sql.Int, id)
+    .input("status", sql.NVarChar, status)
+    .query(`
+      UPDATE dbo.ServiceInquiries
+      SET status = @status, statusUpdatedAt = SYSUTCDATETIME()
+      OUTPUT INSERTED.id, INSERTED.name, INSERTED.email, INSERTED.phone, INSERTED.company,
+             INSERTED.service, INSERTED.budget, INSERTED.timeline, INSERTED.details,
+             INSERTED.status, INSERTED.statusUpdatedAt, INSERTED.createdAt
+      WHERE id = @id
+    `);
+  const row = result.recordset[0];
+  return row ? toCamelCase(row, true) : null;
 }
 
 function toCamelCase(row, isInquiry) {
   if (!row) return row;
   const base = { id: row.id, createdAt: row.createdAt };
   if (isInquiry) {
-    return { ...base, name: row.name, email: row.email, phone: row.phone, company: row.company, service: row.service, budget: row.budget, timeline: row.timeline, details: row.details };
+    return {
+      ...base,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      company: row.company,
+      service: row.service,
+      budget: row.budget,
+      timeline: row.timeline,
+      details: row.details,
+      status: row.status,
+      statusUpdatedAt: row.statusUpdatedAt,
+    };
   }
   return { ...base, name: row.name, email: row.email, phone: row.phone, subject: row.subject, message: row.message };
 }
@@ -104,9 +147,15 @@ async function listMessages() {
   return result.recordset.map((r) => toCamelCase(r, false));
 }
 
-async function listInquiries() {
+async function listInquiries(filter = {}) {
   const ctx = await getPool();
-  const result = await ctx.request().query("SELECT * FROM dbo.ServiceInquiries ORDER BY id DESC");
+  const req = ctx.request();
+  let whereClause = "";
+  if (filter.status) {
+    whereClause = "WHERE status = @status";
+    req.input("status", sql.NVarChar, filter.status);
+  }
+  const result = await req.query(`SELECT * FROM dbo.ServiceInquiries ${whereClause} ORDER BY id DESC`);
   return result.recordset.map((r) => toCamelCase(r, true));
 }
 
@@ -123,6 +172,8 @@ export const mssqlStorage = {
   },
   saveMessage,
   saveInquiry,
+  updateInquiryStatus,
   listMessages,
   listInquiries,
+  statuses: INQUIRY_STATUSES,
 };

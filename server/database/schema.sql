@@ -43,10 +43,13 @@ BEGIN
         budget NVARCHAR(50) NOT NULL,
         timeline NVARCHAR(100) NULL,
         details NVARCHAR(MAX) NULL,
+        status NVARCHAR(20) NOT NULL CONSTRAINT DF_ServiceInquiries_status DEFAULT 'new',
+        statusUpdatedAt DATETIME2 NULL,
         createdAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
     );
 
     CREATE INDEX IX_ServiceInquiries_Service ON dbo.ServiceInquiries (service);
+    CREATE INDEX IX_ServiceInquiries_Status ON dbo.ServiceInquiries (status);
     CREATE INDEX IX_ServiceInquiries_CreatedAt ON dbo.ServiceInquiries (createdAt DESC);
 END
 GO

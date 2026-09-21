@@ -31,4 +31,16 @@ export const config = {
     secret: process.env.JWT_SECRET || "dev-only-secret-change-me",
     expiresIn: process.env.JWT_EXPIRES_IN || "12h",
   },
+
+  // Email notifications for form submissions. The server starts and runs
+  // normally without these — emails are simply skipped until SMTP is set up.
+  smtp: {
+    host: process.env.SMTP_HOST || "",
+    port: Number(process.env.SMTP_PORT) || 587,
+    secure: process.env.SMTP_PORT === "465",
+    user: process.env.SMTP_USER || "",
+    pass: process.env.SMTP_PASS || "",
+    from: process.env.SMTP_FROM || "",
+    to: process.env.NOTIFY_TO || "",
+  },
 };

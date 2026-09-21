@@ -117,6 +117,8 @@ The SPA needs a rewrite of all routes to `/index.html` (already configured above
 
 The Express API in `server/` runs anywhere Node runs (Render, Railway, Fly.io, a VPS). Set the client's `VITE_API_URL` environment variable to the API origin so the contact and inquiry forms reach it, e.g. `VITE_API_URL=https://api.emohtech.co.ke`. Leave it empty when the API serves the built client itself.
 
+The API rate-limits public form submissions (10/15 min) and login (5/15 min) per IP, and can email you on every new submission via SMTP — see `server/.env.example` for `SMTP_*` / `NOTIFY_TO`. Inquiries support a status workflow (`new` / `contacted` / `archived`) via `PUT /api/inquiries/:id/status` (admin JWT).
+
 ## License
 
 Private project.
