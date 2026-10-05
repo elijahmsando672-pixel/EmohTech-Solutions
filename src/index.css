@@ -1356,6 +1356,178 @@ a.contact-item:hover {
   overflow-wrap: anywhere;
 }
 
+.contact-item-button {
+  width: 100%;
+  border: 0;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+
+.contact-item-button:hover {
+  background: white;
+}
+
+.contact-item-button small {
+  transition: color 200ms ease;
+}
+
+.contact-item-button:hover small {
+  color: var(--ink);
+}
+
+.brief {
+  margin-top: 3.5rem;
+  padding: clamp(1.8rem, 3.4vw, 3rem);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #f7f9f2;
+}
+
+.brief-head {
+  max-width: 620px;
+  margin-bottom: 2rem;
+}
+
+.brief-head .eyebrow {
+  margin-bottom: 1.1rem;
+  color: #667085;
+}
+
+.brief-head h3 {
+  margin: 0 0 0.8rem;
+  color: var(--ink);
+  font-size: clamp(1.6rem, 2.6vw, 2.3rem);
+  font-weight: 500;
+  letter-spacing: -0.045em;
+}
+
+.brief-head p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.75;
+}
+
+.brief-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.brief-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.brief-field-wide {
+  grid-column: 1 / -1;
+}
+
+.brief-field > span {
+  color: #667085;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.brief-field input,
+.brief-field select,
+.brief-field textarea {
+  width: 100%;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.brief-field textarea {
+  resize: vertical;
+  min-height: 6.5rem;
+}
+
+.brief-field select {
+  appearance: none;
+  cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, #667085 50%),
+    linear-gradient(135deg, #667085 50%, transparent 50%);
+  background-position: calc(100% - 1.15rem) 55%, calc(100% - 0.8rem) 55%;
+  background-size: 6px 6px, 6px 6px;
+  background-repeat: no-repeat;
+  padding-right: 2.6rem;
+}
+
+.brief-field input:focus,
+.brief-field select:focus,
+.brief-field textarea:focus {
+  outline: none;
+  border-color: #a9c94a;
+  box-shadow: 0 0 0 3px rgba(201, 250, 99, 0.45);
+}
+
+.brief-field input::placeholder,
+.brief-field textarea::placeholder {
+  color: #a8b0bd;
+}
+
+.brief-field-fallback {
+  margin-top: 1.2rem;
+}
+
+.brief-field-fallback textarea {
+  background: #fbfcf8;
+  font-size: 0.82rem;
+  cursor: text;
+}
+
+.brief-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 1.6rem;
+}
+
+.brief-actions .button {
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.brief-actions .button-secondary {
+  color: var(--ink);
+  border-color: var(--line);
+  background: white;
+}
+
+.brief-actions .button-secondary:hover {
+  background: #eef2e6;
+}
+
+.brief-actions .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  transform: none;
+}
+
+.brief-actions a[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.45;
+}
+
+.brief-note {
+  min-height: 1.2rem;
+  margin: 1rem 0 0;
+  color: #667085;
+  font-size: 0.78rem;
+}
+
 .wa-float {
   position: fixed;
   z-index: 30;
@@ -1602,7 +1774,8 @@ footer h2 {
   .work-grid,
   .quote-grid,
   .stack-inner,
-  .contact-inner {
+  .contact-inner,
+  .brief-fields {
     grid-template-columns: 1fr;
   }
 
@@ -1700,6 +1873,14 @@ footer h2 {
   .section-heading {
     gap: 1.5rem;
     margin-bottom: 2.5rem;
+  }
+
+  .brief {
+    margin-top: 2.5rem;
+  }
+
+  .brief-actions .button {
+    width: 100%;
   }
 
   .service-card {

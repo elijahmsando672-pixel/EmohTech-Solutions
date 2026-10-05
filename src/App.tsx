@@ -1,4 +1,10 @@
-import { useState, type ReactNode } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEvent,
+  type ReactNode,
+} from "react"
 
 type IconName = "arrow" | "bot" | "card" | "chat" | "check" | "clock" | "code" | "database" | "globe" | "layers" | "mail" | "menu" | "minus" | "phone" | "pin" | "plus" | "quote" | "shield" | "spark" | "strategy" | "trend" | "workflow" | "x"
 
@@ -1025,6 +1031,228 @@ const mockups: Record<ProjectVisualKind, () => ReactNode> = {
   records: MockRecords,
 }
 
+const briefBudgets = [
+  "Under KSh 50,000",
+  "KSh 50,000 – 150,000",
+  "KSh 150,000 – 500,000",
+  "KSh 500,000+",
+  "Still deciding",
+]
+
+type Brief = {
+  name: string
+  email: string
+  need: string
+  budget: string
+  details: string
+}
+
+const emptyBrief: Brief = {
+  name: "",
+  email: "",
+  need: "",
+  budget: "",
+  details: "",
+}
+
+function buildBriefMessage(brief: Brief) {
+  const lines = [
+    "Hi EmohTech, I'd like to start a project.",
+    "",
+    `Name: ${brief.name}`,
+    `Email: ${brief.email || "not provided"}`,
+    `What I need: ${brief.need || "not sure yet"}`,
+    `Budget: ${brief.budget || "not sure yet"}`,
+  ]
+  if (brief.details.trim()) {
+    lines.push("", `Details: ${brief.details.trim()}`)
+  }
+  lines.push("", "Sent from the EmohTech Solutions website.")
+  return lines.join("\n")
+}
+
+async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    const area = document.createElement("textarea")
+    area.value = text
+    area.setAttribute("readonly", "")
+    area.style.position = "fixed"
+    area.style.opacity = "0"
+    document.body.appendChild(area)
+    area.select()
+    const copied = document.execCommand("copy")
+    document.body.removeChild(area)
+    return copied
+  }
+}
+
+function ProjectBrief({ focusSignal }: { focusSignal: number }) {
+  const [brief, setBrief] = useState<Brief>(emptyBrief)
+  const [copied, setCopied] = useState(false)
+  const [failed, setFailed] = useState(false)
+  const nameRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (focusSignal > 0) {
+      nameRef.current?.focus()
+    }
+  }, [focusSignal])
+
+  const ready = brief.name.trim().length > 0
+  const message = buildBriefMessage(brief)
+  const mailHref = `mailto:${contact.email}?subject=${encodeURIComponent(
+    `New project enquiry — ${brief.name || "website"}`,
+  )}&body=${encodeURIComponent(message)}`
+  const whatsappHref = `${contact.whatsapp}?text=${encodeURIComponent(message)}`
+
+  function update(field: keyof Brief) {
+    return (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      setCopied(false)
+      setFailed(false)
+      setBrief((current) => ({ ...current, [field]: event.target.value }))
+    }
+  }
+
+  async function handleCopy() {
+    const ok = await copyToClipboard(message)
+    setCopied(ok)
+    setFailed(!ok)
+  }
+
+  return (
+    <form
+      className="brief"
+      id="brief"
+      onSubmit={(event) => event.preventDefault()}
+      noValidate
+    >
+      <div className="brief-head">
+        <p className="eyebrow">
+          <span />
+          Start a project
+        </p>
+        <h3>Tell us what you need.</h3>
+        <p>
+          Fill this in and send it whichever way suits you. Nothing is stored on
+          this site — the brief only leaves when you send it.
+        </p>
+      </div>
+
+      <div className="brief-fields">
+        <label className="brief-field">
+          <span>Your name *</span>
+          <input
+            ref={nameRef}
+            type="text"
+            name="name"
+            autoComplete="name"
+            placeholder="e.g. Grace Achieng"
+            value={brief.name}
+            onChange={update("name")}
+          />
+        </label>
+
+        <label className="brief-field">
+          <span>Email or phone</span>
+          <input
+            type="text"
+            name="contact"
+            autoComplete="email"
+            placeholder="So we can reply"
+            value={brief.email}
+            onChange={update("email")}
+          />
+        </label>
+
+        <label className="brief-field">
+          <span>What do you need?</span>
+          <select value={brief.need} onChange={update("need")}>
+            <option value="">Choose a service</option>
+            {services.map((service) => (
+              <option key={service.number} value={service.category}>
+                {service.category}
+              </option>
+            ))}
+            <option value="Something else">Something else</option>
+          </select>
+        </label>
+
+        <label className="brief-field">
+          <span>Budget range</span>
+          <select value={brief.budget} onChange={update("budget")}>
+            <option value="">Choose a range</option>
+            {briefBudgets.map((budget) => (
+              <option key={budget} value={budget}>
+                {budget}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="brief-field brief-field-wide">
+          <span>Project details</span>
+          <textarea
+            name="details"
+            rows={4}
+            placeholder="What are you trying to achieve, and by when?"
+            value={brief.details}
+            onChange={update("details")}
+          />
+        </label>
+      </div>
+
+      <div className="brief-actions">
+        <button
+          className="button button-primary"
+          type="button"
+          onClick={handleCopy}
+          disabled={!ready}
+        >
+          {copied ? "Brief copied" : "Copy brief"}
+          <Icon name={copied ? "check" : "code"} />
+        </button>        <a
+          className="button button-secondary"
+          href={whatsappHref}
+          target="_blank"
+          rel="noreferrer"
+          aria-disabled={!ready}
+          tabIndex={ready ? undefined : -1}
+        >
+          Send on WhatsApp <Icon name="chat" />
+        </a>
+        <a
+          className="button button-secondary"
+          href={mailHref}
+          aria-disabled={!ready}
+          tabIndex={ready ? undefined : -1}
+        >
+          Open in mail app <Icon name="mail" />
+        </a>
+      </div>
+
+      {failed ? (
+        <label className="brief-field brief-field-wide brief-field-fallback">
+          <span>Your message — select and copy</span>
+          <textarea readOnly rows={6} value={message} />
+        </label>
+      ) : null}
+
+      <p className="brief-note" role="status">
+        {failed
+          ? "Your browser blocked the clipboard, so the message is shown below instead."
+          : copied
+            ? "Copied. Paste it into email, WhatsApp or anywhere."
+            : ready
+              ? "Ready to send — pick how you'd like to reach us."
+              : "Add your name to unlock the send options."}
+      </p>
+    </form>
+  )
+}
+
 function ProjectVisual({ project }: { project: Project }) {
   const [missingArtwork, setMissingArtwork] = useState(false)
   const Mockup = mockups[project.visual]
@@ -1049,6 +1277,16 @@ function ProjectVisual({ project }: { project: Project }) {
 function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [openFaq, setOpenFaq] = useState(0)
+  const [briefSignal, setBriefSignal] = useState(0)
+  const [emailCopied, setEmailCopied] = useState(false)
+
+  function openBrief() {
+    setBriefSignal((current) => current + 1)
+    document.getElementById("brief")?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    })
+  }
 
   return (
     <main>
@@ -1076,7 +1314,14 @@ function App() {
               {link.label}
             </a>
           ))}
-          <a className="nav-cta" href={`mailto:${contact.email}`}>
+          <a
+            className="nav-cta"
+            href="#brief"
+            onClick={() => {
+              setMenuOpen(false)
+              openBrief()
+            }}
+          >
             Start a project <Icon name="arrow" />
           </a>
         </nav>
@@ -1367,7 +1612,11 @@ function App() {
             Work directly with senior thinkers and builders from first
             conversation to final launch. No layers. No lost context.
           </p>
-          <a className="button button-primary" href={`mailto:${contact.email}`}>
+          <a
+            className="button button-primary"
+            href="#brief"
+            onClick={openBrief}
+          >
             Meet your technology partner <Icon name="arrow" />
           </a>
         </div>
@@ -1511,15 +1760,25 @@ function App() {
           </p>
 
           <div className="contact-grid">
-            <a className="contact-item" href={`mailto:${contact.email}`}>
+            <button
+              className="contact-item contact-item-button"
+              type="button"
+              onClick={async () => {
+                const ok = await copyToClipboard(contact.email)
+                setEmailCopied(ok)
+                if (ok) {
+                  window.setTimeout(() => setEmailCopied(false), 2500)
+                }
+              }}
+            >
               <span className="contact-icon">
                 <Icon name="mail" />
               </span>
               <span>
-                <small>Email</small>
+                <small>Email {emailCopied ? "· copied" : "· click to copy"}</small>
                 <strong>{contact.email}</strong>
               </span>
-            </a>
+            </button>
             <a className="contact-item" href={contact.phoneHref}>
               <span className="contact-icon">
                 <Icon name="phone" />
@@ -1564,6 +1823,8 @@ function App() {
             </div>
           </div>
         </div>
+
+        <ProjectBrief focusSignal={briefSignal} />
       </section>
 
       <footer>
@@ -1575,10 +1836,10 @@ function App() {
             </p>
             <h2>Start a conversation.</h2>
           </div>
-          <a className="footer-cta" href={`mailto:${contact.email}`}>
+          <a className="footer-cta" href="#brief" onClick={openBrief}>
             <span>
               Start a conversation
-              <small>{contact.email}</small>
+              <small>Tell us about your project</small>
             </span>
             <Icon name="arrow" />
           </a>
@@ -1600,7 +1861,7 @@ function App() {
             <a href="#services">Services</a>
             <a href="#work">Work</a>
             <a href="#about">About</a>
-            <a href={`mailto:${contact.email}`}>Contact</a>
+            <a href="#contact">Contact</a>
           </div>
         </div>
       </footer>

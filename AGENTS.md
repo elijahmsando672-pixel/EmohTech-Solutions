@@ -47,6 +47,12 @@ Selected Work cards render `ProjectVisual`: it tries `/work/<slug>.png` and fall
 
 Icons are inline SVG: to add one, extend the `IconName` union and add its paths to the `paths` record in the `Icon` component.
 
+## Enquiries
+
+There is no backend and no form service. `ProjectBrief` in `src/App.tsx` composes the visitor's answers into a plain-text message via `buildBriefMessage` and offers copy-to-clipboard, a prefilled WhatsApp link, and a prefilled `mailto:`. `copyToClipboard` falls back to a hidden textarea plus `document.execCommand`, and if both fail the message renders in a read-only field so it can still be copied by hand.
+
+Never make a call to action a bare `mailto:` or `tel:` link on its own: sandboxed previews and machines without a mail client swallow those protocols silently. Primary CTAs call `openBrief` in `App`, which bumps `briefSignal`, scrolls `#brief` into view, and lets `ProjectBrief` focus its first field. Adding a field means updating the `Brief` type, `emptyBrief`, and `buildBriefMessage`.
+
 ## Code quality
 
 - Run `pnpm typecheck` and `pnpm build` before calling work done; CI does the same.

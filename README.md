@@ -118,11 +118,18 @@ Components use plain class names styled in `src/index.css` — no Tailwind utili
 
 ## Contact Handling
 
-The site is fully static — there is no backend. Every CTA routes to a channel the business controls:
+The site is fully static — there is no backend and no form service. Enquiries are collected by
+the project brief form at the bottom of the contact section (`ProjectBrief` in `src/App.tsx`).
+Visitors fill in a name plus optional contact details, service, budget and notes, then choose
+how to send it:
 
-- Email — `mailto:` links to `elijahmsando672@gmail.com`
-- Phone — `tel:` links to both numbers
-- WhatsApp — floating button and contact card link to `https://wa.me/254717732274`
+- **Copy brief** — writes the composed message to the clipboard and confirms it. If the browser blocks clipboard access, the message is revealed in a read-only field so it can still be copied by hand.
+- **Send on WhatsApp** — opens `https://wa.me/254717732274` with the brief prefilled.
+- **Open in mail app** — a `mailto:` link with subject and body prefilled. Least reliable of the three, because sandboxed previews and machines with no mail client silently ignore `mailto:`.
+
+The send options stay disabled until a name is entered. Because nothing is stored or transmitted by the site itself, no email service or API key is needed. Direct channels remain as cards in the same section: email (click to copy), phone (`tel:`) and WhatsApp.
+
+The "Start a project" and "Start a conversation" calls to action scroll to the brief and focus its first field, so they always produce visible on-page behaviour instead of depending on an external protocol handler.
 
 ## Deployment
 
