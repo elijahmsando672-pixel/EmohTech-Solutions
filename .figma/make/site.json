@@ -1,0 +1,11 @@
+{
+  "title": "EmohTech Solutions — Software. Automation. Digital Solutions.",
+  "description": "Offers a sleek, user-friendly interface tailored for EmohTech Solutions to showcase tech services and enhance client engagement effectively.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

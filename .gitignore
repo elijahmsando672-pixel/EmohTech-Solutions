@@ -1,28 +1,24 @@
-# Dependencies
 node_modules/
-
-# Build output
-client/dist/
-server/dist/
-
-# Environment files
-.env
-.env.local
-.env.*.local
-!.env.example
-
-# Logs
+dist/
+build/
+.cache/
+.env*
+.vite/
+vite.config.*.timestamp-*
+*.tsbuildinfo
+*-debug.log*
+logs/
 *.log
-npm-debug.log*
+.claude-replay.*
+.tmp-*
+/.figma/design-context/
 
-# Editor / OS
-.vscode/
-.idea/
-.DS_Store
-Thumbs.db
+# Platform-managed agentplat state, not project source. In the
+# client-initiated single-repo workspace layout (make's `Path: "."` spec) the
+# repo root IS the workspace root, so these land inside this repo rather than
+# beside it.
+/.plugins/
+/.opencode-skills/
 
-# Local tooling
-.qodo/
-
-# Misc
-coverage/
+# Local backups of the retired client/ + server/ app, kept on disk only.
+*.full/
