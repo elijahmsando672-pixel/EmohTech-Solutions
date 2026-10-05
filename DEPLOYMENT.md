@@ -1,119 +1,141 @@
 # Deployment Guide
 
-Deployment is fully automated once the steps below are done once:
+The site is a static single-page app: `pnpm build` emits plain files into `dist/`, and any static host can serve it. There is no backend — inquiries arrive by email, phone or WhatsApp.
 
-| Piece            | Where it runs            | Deploys automatically            |
-| ---------------- | ------------------------ | -------------------------------- |
-| Frontend (SPA)   | Netlify                  | On every push to `main`          |
-| Backend (API)    | Render (or Railway/VPS)  | On every push touching `server/` (GitHub Actions) |
-
----
-
-## 1. Backend environment variables
-
-Set these on the host (never commit `.env`). See `server/.env.example`.
-
-| Variable               | Example value                          | Notes                                   |
-| ---------------------- | -------------------------------------- | --------------------------------------- |
-| `PORT`                 | `5000`                                 | Host usually provides this              |
-| `CLIENT_ORIGIN`        | `https://emohtech.netlify.app`         | Exact site origin — CORS whitelist (no trailing slash) |
-| `ADMIN_USERNAME`       | `<your-admin-user>`                    | Login for `POST /api/auth/login`        |
-| `ADMIN_PASSWORD`       | `<strong-password>`                    | —                                       |
-| `JWT_SECRET`           | `<long-random-string>`                 | e.g. `openssl rand -hex 32`             |
-| `SMTP_HOST` / `SMTP_PORT` / `SMTP_USER` / `SMTP_PASS` | —     | SMTP relay (Gmail app password, Brevo, Mailgun, …). Leave blank to disable email |
-| `SMTP_FROM`            | `EmohTech <no-reply@yourdomain.com>`   | Sender address                          |
-| `NOTIFY_TO`            | `elijahmsando672@gmail.com`            | Where submission emails go              |
-
-### Database (recommended for production)
-
-Without settings the API uses **in-memory storage — data resets on every restart**. For persistence:
-
-1. Provision **Azure SQL Database** (or SQL Server on a VPS).
-2. Set `ENABLE_MSSQL=true` and the `MSSQL_*` variables.
-3. Tables auto-create on startup (`database/schema.sql` is the source of truth). Existing tables get the `status` column added automatically.
+| Piece          | Where it runs      | Deploys automatically      |
+| -------------- | ------------------ | -------------------------- |
+| Frontend (SPA) | Netlify / Vercel / any static host | On every push to `main` |
+| CI             | GitHub Actions     | Type-check + build on every push and PR |
 
 ---
 
-## 2. Deploy the backend to Render
+## 1. Build requirements
 
-1. Push the repo to GitHub.
-2. On [render.com](https://render.com): **New → Web Service** → connect the `EmohTech-Solutions` repo.
-3. Configure:
-   - **Root Directory:** `server`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-4. Add the environment variables from section 1.
-5. Deploy — you'll get a URL like `https://emohtech-api.onrender.com`.
-
-**Alternatives:**
-- **Railway** — new project, service root `server`, start `npm start`. Set the same env vars.
-- **VPS** — Node 20+, `cd server && npm install && npm start` under PM2/systemd.
-
----
-
-## 3. Point the Netlify frontend at the API
-
-Netlify reads `VITE_API_URL` at **build time**:
-
-- **Netlify → Site settings → Environment variables** → add:
-  ```
-  VITE_API_URL=https://emohtech-api.onrender.com
-  ```
-- Rebuild/republish the site.
-
-`client/src/utils/api.js` uses `VITE_API_URL` and falls back to same-origin `/api` when empty — no code changes.
-
----
-
-## 4. Verify
+| Requirement | Version                          |
+| ----------- | -------------------------------- |
+| Node.js     | 22 (see `.mise.toml`)            |
+| pnpm        | 10                               |
 
 ```bash
-# Health
-curl https://emohtech-api.onrender.com/api/health
-
-# Submit an inquiry → expect 201 + a notification email
-curl -X POST https://emohtech-api.onrender.com/api/inquiries \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test","email":"you@test.com","phone":"+254700000000","service":"Website","budget":"KSh 100,000+","details":"Test"}'
-
-# Login → copy TOKEN
-curl -X POST https://emohtech-api.onrender.com/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"<admin>","password":"<password>"}'
-
-# List inquiries
-curl https://emohtech-api.onrender.com/api/inquiries -H "Authorization: Bearer TOKEN"
-
-# Update an inquiry status (new → contacted → archived)
-curl -X PUT https://emohtech-api.onrender.com/api/inquiries/1/status \
-  -H "Authorization: Bearer TOKEN" -H "Content-Type: application/json" \
-  -d '{"status":"contacted"}'
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm build      # -> dist/
 ```
 
-Also submit a real form on `https://emohtech.netlify.app/` and check the Network tab:
-request hits the Render URL, returns `201`, no CORS errors. If CORS fails, the `CLIENT_ORIGIN` value doesn't exactly match the site origin.
+| Setting          | Value        |
+| ---------------- | ------------ |
+| Build command    | `pnpm build` |
+| Publish / Output | `dist`       |
+| Node version     | `22`         |
+
+Hosting platforms detect pnpm automatically from `pnpm-lock.yaml`; if yours does not, set the install command to `pnpm install --frozen-lockfile`.
 
 ---
 
-## 5. Continuous integration & auto-deploy
+## 2. Netlify
 
-GitHub Actions workflows live in `.github/workflows/`:
+`netlify.toml` is already configured:
 
-- **`ci.yml`** — runs server tests + client build/lint on every push and PR. No setup needed.
-- **`deploy-api.yml`** — triggers a Render deploy whenever `server/` changes on `main`. To enable:
-  1. In Render: **Account Settings → API Keys** → create a key.
-  2. In GitHub repo: **Settings → Secrets and variables → Actions** → add `RENDER_API_KEY` (the API key) and `RENDER_SERVICE_ID` (find it via the Render API key endpoint, or the service ID in your Render dashboard URL).
+```toml
+[build]
+  base = "."
+  command = "pnpm build"
+  publish = "dist"
+```
 
-Once those secrets exist, `git push` deploys the API automatically.
+1. Push the repo to GitHub.
+2. On [netlify.com](https://netlify.com): **Add new site → Import an existing project** → connect `EmohTech-Solutions`.
+3. Leave the build fields as detected (or set them from the table above).
+4. Deploy — you get a URL like `https://emohtech.netlify.app`.
+
+The SPA redirect in `netlify.toml` and the equivalent `public/_redirects` file both rewrite unknown paths to `/index.html`.
+
+---
+
+## 3. Vercel
+
+`vercel.json` is already configured:
+
+```json
+{
+  "framework": "vite",
+  "buildCommand": "pnpm build",
+  "outputDirectory": "dist"
+}
+```
+
+1. On [vercel.com](https://vercel.com): **New Project** → import the repo.
+2. Framework preset: Vite. Leave the build/output fields as detected.
+3. Deploy.
+
+---
+
+## 4. Any other static host
+
+Build locally and upload the contents of `dist/`:
+
+```bash
+pnpm build
+# then upload dist/ to your host
+```
+
+Make sure the host serves `dist/index.html` for unknown paths.
+
+### Environment variables
+
+Only needed when hosting behind a sub-path or a custom runtime:
+
+| Variable                 | Purpose                                                        |
+| ------------------------ | -------------------------------------------------------------- |
+| `FIGMA_PUBLIC_URL`       | Sub-path to host under, e.g. `/emohtech` — becomes the Vite `base` |
+| `PORT`                   | Dev/preview server port (default `8443`)                        |
+| `FIGMA_DEV_SERVER_HOST`  | Dev server bind address (default `0.0.0.0`)                     |
+
+None of these are required for a root-domain static deploy.
+
+---
+
+## 5. Git LFS
+
+Images are tracked with Git LFS (`.gitattributes`). Install it before cloning or committing:
+
+```bash
+git lfs install
+git lfs pull
+```
+
+LFS objects needed by the site: `public/logo.png`, `public/apple-touch-icon.png`, `public/favicon-*.png`. A clone without LFS will contain pointer files and the images will not render.
+
+---
+
+## 6. Custom domain
+
+1. Point your domain's DNS at the host (CNAME for Netlify/Vercel, or the host's nameservers).
+2. Add the domain in the host dashboard and let it issue TLS.
+3. Update the canonical URLs in `public/sitemap.xml` and `public/robots.txt` to the live domain.
+4. Set the page title/description in `.figma/make/site.json`.
+
+---
+
+## 7. Continuous integration
+
+`.github/workflows/ci.yml` runs on every push and pull request:
+
+1. `pnpm install --frozen-lockfile`
+2. `pnpm typecheck`
+3. `pnpm build`
+
+Netlify and Vercel build from the same repository, so a green CI run means the deploy will succeed. No secrets are required.
 
 ---
 
 ## Troubleshooting
 
-| Symptom                        | Fix                                              |
-| ------------------------------ | ------------------------------------------------ |
-| Forms fail with CORS errors    | Set `CLIENT_ORIGIN` to the exact site origin (no trailing slash) and redeploy |
-| API works, no emails received  | Add `SMTP_*` + `NOTIFY_TO`, verify the relay allows the "from" address |
-| Data disappears after restart  | Configure a real database (`ENABLE_MSSQL=true` + `MSSQL_*`) |
-| `401 Invalid credentials`      | Wrong `ADMIN_USERNAME`/`ADMIN_PASSWORD` on the host |
-| API deploy never triggers      | Add `RENDER_API_KEY` + `RENDER_SERVICE_ID` secrets |
+| Symptom                              | Fix                                                                 |
+| ------------------------------------ | ------------------------------------------------------------------- |
+| Images missing after a fresh clone  | Install Git LFS and run `git lfs pull`                               |
+| 404 on refresh of a deep link       | Add the SPA rewrite to `/index.html` (`netlify.toml`, `_redirects`) |
+| Build fails with a Node version error| Set the host's Node version to 22                                    |
+| Old copy still live                  | `pnpm build` locally, confirm the section text, then force-push/rebuild |
+| Contact links do nothing            | Confirm the `mailto:`/`tel:`/`wa.me` values in `src/App.tsx` `contact` |
+| Deploy did not run                   | Check the host dashboard for a failed build and its log             |
