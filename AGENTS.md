@@ -43,6 +43,8 @@ Tailwind CSS v4 is available through `@tailwindcss/vite` and imported in `src/in
 
 Copy and data are typed arrays at the top of `src/App.tsx` (`services`, `projects`, `testimonials`, `faqs`, `processSteps`, `stats`, `contact`, `founder`, …). Change the data, not the markup, for copy updates. Page title and description live in `.figma/make/site.json`.
 
+Selected Work cards render `ProjectVisual`: it tries `/work/<slug>.png` and falls back to the per-project `Mock*` SVG in `src/App.tsx` when that file is absent. Real screenshots therefore need no code change — only a new `slug`/mockup pair does.
+
 Icons are inline SVG: to add one, extend the `IconName` union and add its paths to the `paths` record in the `Icon` component.
 
 ## Code quality

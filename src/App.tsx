@@ -340,9 +340,32 @@ const processSteps = [
   },
 ]
 
-const projects = [
+type ProjectVisualKind =
+  | "store"
+  | "dashboard"
+  | "chat"
+  | "checkout"
+  | "portfolio"
+  | "records"
+
+type Project = {
+  number: string
+  slug: string
+  visual: ProjectVisualKind
+  swatch: string
+  title: string
+  category: string
+  summary: string
+  tags: string[]
+  result: string
+  year: string
+}
+
+const projects: Project[] = [
   {
     number: "01",
+    slug: "savannah-fresh-foods",
+    visual: "store",
     swatch: "swatch-1",
     title: "Savannah Fresh — E-Commerce Store",
     category: "Web Development",
@@ -354,6 +377,8 @@ const projects = [
   },
   {
     number: "02",
+    slug: "edu-manager",
+    visual: "dashboard",
     swatch: "swatch-2",
     title: "EduManager — School Management System",
     category: "Business Automation",
@@ -365,6 +390,8 @@ const projects = [
   },
   {
     number: "03",
+    slug: "fika-ai-support",
+    visual: "chat",
     swatch: "swatch-3",
     title: "FikaShops — WhatsApp Support Bot",
     category: "AI & Chatbots",
@@ -376,6 +403,8 @@ const projects = [
   },
   {
     number: "04",
+    slug: "twende-tours",
+    visual: "checkout",
     swatch: "swatch-4",
     title: "Twende Tours — Booking System",
     category: "Business Automation",
@@ -387,6 +416,8 @@ const projects = [
   },
   {
     number: "05",
+    slug: "zawadi-creatives",
+    visual: "portfolio",
     swatch: "swatch-5",
     title: "Zawadi Creatives — Portfolio & CRM",
     category: "Web Development",
@@ -398,6 +429,8 @@ const projects = [
   },
   {
     number: "06",
+    slug: "kilimo-track",
+    visual: "records",
     swatch: "swatch-6",
     title: "KilimoTrack — Farm Record System",
     category: "Custom Software",
@@ -491,6 +524,526 @@ const founder = {
   name: "Elijah Musando",
   role: "Founder & Lead Developer",
   bio: "Software developer and automation specialist based in Nairobi, Kenya, helping businesses replace manual work with dependable digital systems.",
+}
+
+const mockUrls: Record<ProjectVisualKind, string> = {
+  store: "savannahfresh.co.ke",
+  dashboard: "edumanager.app",
+  chat: "wa.me/fikashops",
+  checkout: "twendetours.co.ke",
+  portfolio: "zawadicreatives.co.ke",
+  records: "kilimotrack.co.ke",
+}
+
+function MockFrame({
+  kind,
+  children,
+}: {
+  kind: ProjectVisualKind
+  children: ReactNode
+}) {
+  return (
+    <svg
+      className="work-mockup"
+      viewBox="0 0 400 200"
+      role="img"
+      aria-label={`${kind} interface preview`}
+      fontFamily="'DM Sans', 'Inter', system-ui, sans-serif"
+    >
+      <rect x="16" y="12" width="368" height="176" rx="12" fill="#ffffff" />
+      <path
+        d="M16 24a12 12 0 0 1 12-12h344a12 12 0 0 1 12 12v14H16Z"
+        fill="#eef1f7"
+      />
+      <circle cx="33" cy="31" r="3.2" fill="#ff5f57" />
+      <circle cx="45" cy="31" r="3.2" fill="#febc2e" />
+      <circle cx="57" cy="31" r="3.2" fill="#28c840" />
+      <rect
+        x="74"
+        y="25"
+        width="250"
+        height="13"
+        rx="6.5"
+        fill="#ffffff"
+        stroke="#e2e6ef"
+      />
+      <text x="84" y="34.5" fontSize="7.5" fill="#8a93a6">
+        {mockUrls[kind]}
+      </text>
+      {children}
+    </svg>
+  )
+}
+
+function MockStore() {
+  const tiles = [
+    { x: 30, tint: "#d8f3c8", name: "Fresh Tomatoes", price: "KSh 450" },
+    { x: 148, tint: "#fde7c8", name: "Sukuma Wiki", price: "KSh 120" },
+    { x: 266, tint: "#d5ecff", name: "Milk 1L", price: "KSh 320" },
+  ]
+  return (
+    <MockFrame kind="store">
+      <rect
+        x="30"
+        y="48"
+        width="200"
+        height="17"
+        rx="8.5"
+        fill="#f4f6fa"
+        stroke="#e6eaf2"
+      />
+      <text x="40" y="59.5" fontSize="7.5" fill="#98a1b2">
+        Search fresh produce
+      </text>
+      <rect x="286" y="48" width="82" height="17" rx="8.5" fill="#c9fa63" />
+      <text x="298" y="59.5" fontSize="7.5" fontWeight="700" fill="#0b1933">
+        Cart · 3
+      </text>
+      {tiles.map((tile) => (
+        <g key={tile.name}>
+          <rect
+            x={tile.x}
+            y="76"
+            width="106"
+            height="80"
+            rx="8"
+            fill="#f8fafc"
+            stroke="#eef1f6"
+          />
+          <rect
+            x={tile.x + 8}
+            y="84"
+            width="90"
+            height="34"
+            rx="5"
+            fill={tile.tint}
+          />
+          <text x={tile.x + 8} y="130" fontSize="7.5" fontWeight="600" fill="#0b1933">
+            {tile.name}
+          </text>
+          <text x={tile.x + 8} y="142" fontSize="7.5" fill="#6b7688">
+            {tile.price}
+          </text>
+          <rect
+            x={tile.x + 58}
+            y="134"
+            width="40"
+            height="14"
+            rx="7"
+            fill="#0b1933"
+          />
+          <text
+            x={tile.x + 68}
+            y="143.5"
+            fontSize="6.5"
+            fontWeight="700"
+            fill="#ffffff"
+          >
+            Add
+          </text>
+        </g>
+      ))}
+      <rect x="30" y="162" width="66" height="16" rx="8" fill="#0b1933" />
+      <text x="43" y="173.5" fontSize="7" fontWeight="700" fill="#c9fa63">
+        M-PESA
+      </text>
+      <text x="104" y="173.5" fontSize="7" fill="#98a1b2">
+        Pay · STK push · Same-day delivery
+      </text>
+    </MockFrame>
+  )
+}
+
+function MockDashboard() {
+  const bars = [26, 40, 20, 50, 34, 58, 44]
+  return (
+    <MockFrame kind="dashboard">
+      <rect x="30" y="48" width="62" height="118" rx="7" fill="#f4f6fa" />
+      <rect x="38" y="56" width="46" height="9" rx="4.5" fill="#0b1933" />
+      {[0, 1, 2, 3].map((row) => (
+        <rect
+          key={row}
+          x="38"
+          y={72 + row * 15}
+          width={row === 0 ? 46 : 36}
+          height="8"
+          rx="4"
+          fill={row === 0 ? "#c9fa63" : "#dee3ec"}
+        />
+      ))}
+      {[
+        { label: "Fees collected", value: "KSh 1.2M" },
+        { label: "Students", value: "842" },
+        { label: "Unpaid", value: "37" },
+      ].map((stat, index) => (
+        <g key={stat.label}>
+          <rect
+            x={102 + index * 92}
+            y="48"
+            width="84"
+            height="40"
+            rx="7"
+            fill="#f8fafc"
+            stroke="#eef1f6"
+          />
+          <text
+            x={110 + index * 92}
+            y="61"
+            fontSize="6.5"
+            fill="#98a1b2"
+          >
+            {stat.label}
+          </text>
+          <text
+            x={110 + index * 92}
+            y="77"
+            fontSize="10"
+            fontWeight="700"
+            fill="#0b1933"
+          >
+            {stat.value}
+          </text>
+        </g>
+      ))}
+      <rect
+        x="102"
+        y="96"
+        width="268"
+        height="70"
+        rx="7"
+        fill="#f8fafc"
+        stroke="#eef1f6"
+      />
+      <text x="358" y="108" fontSize="6.5" fill="#98a1b2" textAnchor="end">
+        Weekly fees
+      </text>
+      {bars.map((height, index) => (
+        <rect
+          key={height + index}
+          x={116 + index * 34}
+          y={160 - height}
+          width="18"
+          height={height}
+          rx="3"
+          fill={index === 5 ? "#0b1933" : "#c9fa63"}
+        />
+      ))}
+    </MockFrame>
+  )
+}
+
+function MockChat() {
+  return (
+    <MockFrame kind="chat">
+      <rect x="30" y="48" width="340" height="22" rx="7" fill="#f4f6fa" />
+      <circle cx="44" cy="59" r="8" fill="#c9fa63" />
+      <text x="56" y="57" fontSize="7.5" fontWeight="600" fill="#0b1933">
+        FikaShops Assistant
+      </text>
+      <text x="56" y="66" fontSize="6" fill="#6b7688">
+        online · replies instantly
+      </text>
+      <rect x="30" y="80" width="168" height="24" rx="9" fill="#f1f3f8" />
+      <text x="40" y="90" fontSize="7" fill="#0b1933">
+        Hi! Track your order and we
+      </text>
+      <text x="40" y="100" fontSize="7" fill="#0b1933">
+        will reply in seconds.
+      </text>
+      <rect x="212" y="110" width="158" height="20" rx="9" fill="#c9fa63" />
+      <text x="222" y="123.5" fontSize="7" fill="#0b1933">
+        Where is order #1234?
+      </text>
+      <rect x="30" y="136" width="196" height="24" rx="9" fill="#f1f3f8" />
+      <text x="40" y="146" fontSize="7" fill="#0b1933">
+        Out for delivery. Arriving
+      </text>
+      <text x="40" y="156" fontSize="7" fill="#0b1933">
+        today at 3:30 PM.
+      </text>
+      {["Track order", "Talk to agent"].map((chip, index) => (
+        <g key={chip}>
+          <rect
+            x={30 + index * 88}
+            y="164"
+            width="80"
+            height="16"
+            rx="8"
+            fill="#ffffff"
+            stroke="#c9fa63"
+          />
+          <text
+            x={40 + index * 88}
+            y="175"
+            fontSize="7"
+            fill="#0b1933"
+          >
+            {chip}
+          </text>
+        </g>
+      ))}
+      <rect
+        x="212"
+        y="164"
+        width="158"
+        height="16"
+        rx="8"
+        fill="#ffffff"
+        stroke="#e2e6ef"
+      />
+      <circle cx="362" cy="172" r="6" fill="#0b1933" />
+    </MockFrame>
+  )
+}
+
+function MockCheckout() {
+  const trips = [
+    { y: 48, tint: "#fde7c8", name: "Maasai Mara · 3 days", price: "KSh 45,000" },
+    { y: 86, tint: "#d5ecff", name: "Lake Nakuru · 2 days", price: "KSh 28,500" },
+  ]
+  return (
+    <MockFrame kind="checkout">
+      {trips.map((trip) => (
+        <g key={trip.name}>
+          <rect
+            x="30"
+            y={trip.y}
+            width="204"
+            height="32"
+            rx="7"
+            fill="#f8fafc"
+            stroke="#eef1f6"
+          />
+          <rect x="38" y={trip.y + 6} width="20" height="20" rx="4" fill={trip.tint} />
+          <text x="66" y={trip.y + 16} fontSize="7" fontWeight="600" fill="#0b1933">
+            {trip.name}
+          </text>
+          <text x="66" y={trip.y + 26} fontSize="6.5" fill="#98a1b2">
+            Deposit 30% · 2 seats left
+          </text>
+          <text
+            x="224"
+            y={trip.y + 20}
+            fontSize="7.5"
+            fontWeight="700"
+            fill="#0b1933"
+            textAnchor="end"
+          >
+            {trip.price}
+          </text>
+        </g>
+      ))}
+      <rect x="30" y="126" width="204" height="40" rx="7" fill="#0b1933" />
+      <text x="42" y="142" fontSize="7" fontWeight="700" fill="#ffffff">
+        Book &amp; pay deposit
+      </text>
+      <text x="42" y="156" fontSize="6.5" fill="#8fa0bd">
+        Confirmation sent by email &amp; WhatsApp
+      </text>
+      <rect x="244" y="48" width="126" height="118" rx="10" fill="#0b1933" />
+      <text x="258" y="66" fontSize="7" fontWeight="700" fill="#c9fa63">
+        M-PESA STK PUSH
+      </text>
+      <rect
+        x="258"
+        y="76"
+        width="98"
+        height="44"
+        rx="6"
+        fill="#16264a"
+      />
+      <rect x="266" y="84" width="16" height="28" rx="3" fill="#22345c" />
+      <circle cx="274" cy="116" r="1.4" fill="#8fa0bd" />
+      <text x="290" y="96" fontSize="8" fontWeight="700" fill="#ffffff">
+        KSh 13,500
+      </text>
+      <text x="290" y="110" fontSize="6.5" fill="#8fa0bd">
+        Enter PIN on your phone
+      </text>
+      {[0, 1, 2, 3].map((dot) => (
+        <circle
+          key={dot}
+          cx={268 + dot * 13}
+          cy="136"
+          r="4.5"
+          fill="none"
+          stroke="#4a5f8c"
+        />
+      ))}
+      <rect x="258" y="148" width="98" height="14" rx="7" fill="#c9fa63" />
+      <text x="284" y="158" fontSize="7" fontWeight="700" fill="#0b1933">
+        Confirm
+      </text>
+    </MockFrame>
+  )
+}
+
+function MockPortfolio() {
+  const tiles = [
+    { x: 30, y: 48, w: 52, h: 44, tint: "#f43f5e" },
+    { x: 86, y: 48, w: 52, h: 66, tint: "#0b1933" },
+    { x: 30, y: 96, w: 52, h: 70, tint: "#c9fa63" },
+    { x: 86, y: 118, w: 52, h: 48, tint: "#4f46e5" },
+    { x: 142, y: 48, w: 68, h: 118, tint: "#f59e0b" },
+  ]
+  return (
+    <MockFrame kind="portfolio">
+      <text x="30" y="46" fontSize="6.5" fill="#98a1b2">
+        Selected work
+      </text>
+      {tiles.map((tile) => (
+        <rect
+          key={`${tile.x}-${tile.y}`}
+          x={tile.x}
+          y={tile.y + 8}
+          width={tile.w}
+          height={tile.h}
+          rx="5"
+          fill={tile.tint}
+        />
+      ))}
+      <rect x="224" y="48" width="146" height="118" rx="8" fill="#f8fafc" stroke="#eef1f6" />
+      <text x="236" y="64" fontSize="7" fontWeight="700" fill="#0b1933">
+        Enquiry pipeline
+      </text>
+      {[
+        { label: "New", x: 234, cards: 2 },
+        { label: "Quoted", x: 282, cards: 1 },
+        { label: "Won", x: 330, cards: 1 },
+      ].map((column) => (
+        <g key={column.label}>
+          <text x={column.x} y="80" fontSize="6" fill="#98a1b2">
+            {column.label}
+          </text>
+          {Array.from({ length: column.cards }).map((_, card) => (
+            <rect
+              key={card}
+              x={column.x}
+              y={86 + card * 24}
+              width="42"
+              height="20"
+              rx="4"
+              fill="#ffffff"
+              stroke="#eef1f6"
+            />
+          ))}
+        </g>
+      ))}
+      <rect x="234" y="136" width="126" height="18" rx="9" fill="#c9fa63" />
+      <text x="248" y="148.5" fontSize="7" fontWeight="700" fill="#0b1933">
+        Send quote · auto-reply
+      </text>
+    </MockFrame>
+  )
+}
+
+function MockRecords() {
+  const rows = [
+    { member: "Member A-102", value: "48 crates", status: "#c9fa63" },
+    { member: "Member B-231", value: "36 crates", status: "#e2e6ef" },
+    { member: "Member C-084", value: "52 crates", status: "#c9fa63" },
+    { member: "Member D-317", value: "29 crates", status: "#e2e6ef" },
+  ]
+  return (
+    <MockFrame kind="records">
+      <rect
+        x="30"
+        y="48"
+        width="176"
+        height="17"
+        rx="8.5"
+        fill="#f4f6fa"
+        stroke="#e6eaf2"
+      />
+      <text x="40" y="59.5" fontSize="7.5" fill="#98a1b2">
+        Search member or produce
+      </text>
+      <rect x="214" y="48" width="60" height="17" rx="8.5" fill="#0b1933" />
+      <text x="226" y="59.5" fontSize="7" fontWeight="700" fill="#c9fa63">
+        Export
+      </text>
+      <rect x="30" y="72" width="244" height="15" rx="4" fill="#f4f6fa" />
+      {["Member", "Produce", "Status"].map((heading, index) => (
+        <text
+          key={heading}
+          x={40 + index * 82}
+          y="82.5"
+          fontSize="6.5"
+          fontWeight="600"
+          fill="#6b7688"
+        >
+          {heading}
+        </text>
+      ))}
+      {rows.map((row, index) => (
+        <g key={row.member}>
+          <text x="40" y={101 + index * 15} fontSize="7" fill="#0b1933">
+            {row.member}
+          </text>
+          <text x="122" y={101 + index * 15} fontSize="7" fill="#0b1933">
+            {row.value}
+          </text>
+          <rect
+            x="204"
+            y={93 + index * 15}
+            width="52"
+            height="11"
+            rx="5.5"
+            fill={row.status}
+          />
+        </g>
+      ))}
+      <rect x="30" y="154" width="244" height="15" rx="4" fill="#f8fafc" stroke="#eef1f6" />
+      <text x="40" y="164.5" fontSize="6.5" fill="#98a1b2">
+        Role-based access · staff, auditor, member
+      </text>
+      <rect x="284" y="48" width="86" height="118" rx="8" fill="#f8fafc" stroke="#eef1f6" />
+      <text x="296" y="64" fontSize="7" fontWeight="700" fill="#0b1933">
+        Stock
+      </text>
+      {[40, 62, 34, 72, 52].map((height, index) => (
+        <rect
+          key={height + index}
+          x={296 + index * 15}
+          y={160 - height}
+          width="9"
+          height={height}
+          rx="2"
+          fill={index === 3 ? "#0b1933" : "#c9fa63"}
+        />
+      ))}
+    </MockFrame>
+  )
+}
+
+const mockups: Record<ProjectVisualKind, () => ReactNode> = {
+  store: MockStore,
+  dashboard: MockDashboard,
+  chat: MockChat,
+  checkout: MockCheckout,
+  portfolio: MockPortfolio,
+  records: MockRecords,
+}
+
+function ProjectVisual({ project }: { project: Project }) {
+  const [missingArtwork, setMissingArtwork] = useState(false)
+  const Mockup = mockups[project.visual]
+  return (
+    <div className={`work-media ${project.swatch}`}>
+      {missingArtwork ? (
+        <Mockup />
+      ) : (
+        <img
+          src={`/work/${project.slug}.png`}
+          alt={`${project.title} interface`}
+          loading="lazy"
+          onError={() => setMissingArtwork(true)}
+        />
+      )}
+      <span>{project.category}</span>
+      <i>{project.number}</i>
+    </div>
+  )
 }
 
 function App() {
@@ -751,10 +1304,7 @@ function App() {
         <div className="work-grid">
           {projects.map((project) => (
             <article className="work-card" key={project.title}>
-              <div className={project.swatch}>
-                <span>{project.category}</span>
-                <i>{project.number}</i>
-              </div>
+              <ProjectVisual project={project} />
               <div className="work-body">
                 <div className="work-meta">
                   <h3>{project.title}</h3>

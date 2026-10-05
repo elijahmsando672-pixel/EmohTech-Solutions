@@ -78,6 +78,27 @@ All copy and data live at the top of `src/App.tsx` as typed arrays — edit thes
 
 Page `<title>` and meta description come from `.figma/make/site.json`.
 
+### Project Screenshots
+
+Each Selected Work card shows a hand-built SVG interface mockup (`ProjectVisual` and the
+`Mock*` components in `src/App.tsx`) that matches what that project actually does. To
+replace a mockup with a real screenshot, save the image as `public/work/<slug>.png` using
+the project's `slug` field:
+
+| Project                     | Drop-in path                          |
+| --------------------------- | ------------------------------------- |
+| Savannah Fresh              | `public/work/savannah-fresh-foods.png` |
+| EduManager                  | `public/work/edu-manager.png`         |
+| FikaShops                   | `public/work/fika-ai-support.png`     |
+| Twende Tours                | `public/work/twende-tours.png`        |
+| Zawadi Creatives            | `public/work/zawadi-creatives.png`    |
+| KilimoTrack                 | `public/work/kilimo-track.png`        |
+
+The card picks the PNG up automatically and falls back to the SVG mockup when the file is
+missing, so cards can be filled in one at a time. Screenshots are cropped to 2:1 with the
+top edge preserved, so use wide captures (around 1600×800). Images are tracked with Git LFS,
+so run `git lfs install` once before committing new ones.
+
 ## Design System
 
 Tokens are CSS custom properties at the top of `src/index.css`:
